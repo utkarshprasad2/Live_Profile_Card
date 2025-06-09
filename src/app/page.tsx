@@ -6,7 +6,7 @@ import Loading from '@/components/Loading';
 import ProfileCard from '@/components/ProfileCard';
 import SearchForm from '@/components/SearchForm';
 import VideoGrid from '@/components/VideoGrid';
-import Analytics from '@/components/Analytics';
+import { Analytics } from '@/components/Analytics';
 import { TikTokCreator, TikTokVideo, ApiResponse } from '@/types';
 
 export default function Home() {

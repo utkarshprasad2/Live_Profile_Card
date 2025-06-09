@@ -5,18 +5,27 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.tiktokcdn.com',
-        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: '*.tiktokcdn-us.com',
-        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: '*.tiktok.com',
-        pathname: '/**',
-      }
+        hostname: 'p16-sign.tiktokcdn-us.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p19-sign.tiktokcdn-us.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p16-sign-va.tiktokcdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p16-sign-sg.tiktokcdn.com',
+      },
     ],
   },
 }

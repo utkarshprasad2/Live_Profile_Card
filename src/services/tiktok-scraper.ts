@@ -1,126 +1,25 @@
 import puppeteer from 'puppeteer';
-import { TikTokCreator, TikTokVideo } from '@/types';
+import { TikTokProfile, TikTokVideo } from '@/types/tiktok';
 
-// Simple in-memory cache
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
-
-const cache = new Map<string, CacheEntry<any>>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const cache = new Map<string, { data: any; timestamp: number }>();
 
 function getCached<T>(key: string): T | null {
-  const entry = cache.get(key);
-  if (!entry) return null;
-  
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
+  const cached = cache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > CACHE_DURATION) {
     cache.delete(key);
     return null;
   }
-  
-  return entry.data;
+  return cached.data as T;
 }
 
-function setCache<T>(key: string, data: T): void {
-  cache.set(key, {
-    data,
-    timestamp: Date.now()
-  });
+function setCache<T>(key: string, data: T) {
+  cache.set(key, { data, timestamp: Date.now() });
 }
 
-export async function scrapeCreatorProfile(username: string): Promise<TikTokCreator> {
-  const cacheKey = `profile:${username}`;
-  const cached = getCached<TikTokCreator>(cacheKey);
-  if (cached) return cached;
-
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--disable-gpu'
-    ]
-  });
-
-  try {
-    const page = await browser.newPage();
-    
-    // Set user agent and other headers to avoid detection
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-    });
-    
-    // Navigate to TikTok profile page with timeout
-    await page.goto(`https://www.tiktok.com/@${username}`, {
-      waitUntil: 'networkidle0',
-      timeout: 30000
-    });
-
-    // Check if profile exists
-    const notFound = await page.$('div[data-e2e="user-not-found"]');
-    if (notFound) {
-      throw new Error('Profile not found');
-    }
-
-    // Extract profile data
-    const profileData = await page.evaluate(() => {
-      const getFollowerCount = () => {
-        const followerElement = document.querySelector('[data-e2e="followers-count"]');
-        return followerElement ? parseNumber(followerElement.textContent || '0') : 0;
-      };
-
-      const getLikesCount = () => {
-        const likesElement = document.querySelector('[data-e2e="likes-count"]');
-        return likesElement ? parseNumber(likesElement.textContent || '0') : 0;
-      };
-
-      const parseNumber = (str: string) => {
-        const num = str.toLowerCase().replace(/[km]+$/, '');
-        const multiplier = str.toLowerCase().endsWith('k') ? 1000 : (str.toLowerCase().endsWith('m') ? 1000000 : 1);
-        return Math.round(parseFloat(num) * multiplier);
-      };
-
-      return {
-        displayName: document.querySelector('[data-e2e="user-subtitle"]')?.textContent || '',
-        bio: document.querySelector('[data-e2e="user-bio"]')?.textContent || '',
-        followers: getFollowerCount(),
-        likes: getLikesCount(),
-        isVerified: !!document.querySelector('[data-e2e="user-verified"]'),
-        profileImage: document.querySelector('[data-e2e="user-avatar"] img')?.getAttribute('src') || '',
-      };
-    });
-
-    const result = {
-      username,
-      ...profileData,
-    };
-
-    setCache(cacheKey, result);
-    return result;
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('net::ERR_TIMED_OUT')) {
-        throw new Error('Request timed out. TikTok might be blocking access.');
-      }
-      throw error;
-    }
-    throw new Error('Failed to fetch profile data');
-  } finally {
-    await browser.close();
-  }
-}
-
-export async function scrapeCreatorVideos(username: string): Promise<TikTokVideo[]> {
-  const cacheKey = `videos:${username}`;
-  const cached = getCached<TikTokVideo[]>(cacheKey);
-  if (cached) return cached;
-
-  const browser = await puppeteer.launch({
+async function initBrowser() {
+  return await puppeteer.launch({
     headless: true,
     args: [
       '--no-sandbox',
@@ -128,9 +27,19 @@ export async function scrapeCreatorVideos(username: string): Promise<TikTokVideo
       '--disable-dev-shm-usage',
       '--disable-accelerated-2d-canvas',
       '--disable-gpu',
-      '--window-size=1920,1080'
+      '--window-size=1920,1080',
+      '--disable-web-security',
+      '--disable-features=IsolateOrigins,site-per-process'
     ]
   });
+}
+
+export async function scrapeCreatorProfile(username: string): Promise<TikTokProfile> {
+  const cacheKey = `profile:${username}`;
+  const cached = getCached<TikTokProfile>(cacheKey);
+  if (cached) return cached;
+
+  const browser = await initBrowser();
 
   try {
     const page = await browser.newPage();
@@ -143,21 +52,134 @@ export async function scrapeCreatorVideos(username: string): Promise<TikTokVideo
       'sec-ch-ua-mobile': '?0',
       'sec-ch-ua-platform': '"macOS"'
     });
-    
-    await page.goto(`https://www.tiktok.com/@${username}`, {
-      waitUntil: 'networkidle0',
-      timeout: 30000
+
+    // Add error handling for navigation
+    await Promise.race([
+      page.goto(`https://www.tiktok.com/@${username}`, {
+        waitUntil: 'networkidle0',
+        timeout: 60000 // Increase timeout to 60 seconds
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Navigation timeout')), 60000)
+      )
+    ]);
+
+    // Wait for key elements with increased timeout
+    await page.waitForSelector('h1[data-e2e="user-title"], h2[data-e2e="user-subtitle"]', { timeout: 10000 })
+      .catch(() => console.log('Could not find title/subtitle elements'));
+
+    const profile = await page.evaluate(() => {
+      const getFollowerCount = () => {
+        const elements = document.querySelectorAll('strong[data-e2e*="followers"], div[data-e2e*="followers"] strong');
+        for (const el of elements) {
+          const text = el.textContent?.trim();
+          if (text) {
+            const num = text.toLowerCase();
+            if (num.endsWith('m')) return Math.round(parseFloat(num) * 1000000);
+            if (num.endsWith('k')) return Math.round(parseFloat(num) * 1000);
+            return parseInt(num.replace(/,/g, ''), 10);
+          }
+        }
+        return 0;
+      };
+
+      const getFollowingCount = () => {
+        const elements = document.querySelectorAll('strong[data-e2e*="following"], div[data-e2e*="following"] strong');
+        for (const el of elements) {
+          const text = el.textContent?.trim();
+          if (text) {
+            const num = text.toLowerCase();
+            if (num.endsWith('m')) return Math.round(parseFloat(num) * 1000000);
+            if (num.endsWith('k')) return Math.round(parseFloat(num) * 1000);
+            return parseInt(num.replace(/,/g, ''), 10);
+          }
+        }
+        return 0;
+      };
+
+      const getLikesCount = () => {
+        const elements = document.querySelectorAll('strong[data-e2e*="likes"], div[data-e2e*="likes"] strong');
+        for (const el of elements) {
+          const text = el.textContent?.trim();
+          if (text) {
+            const num = text.toLowerCase();
+            if (num.endsWith('m')) return Math.round(parseFloat(num) * 1000000);
+            if (num.endsWith('k')) return Math.round(parseFloat(num) * 1000);
+            return parseInt(num.replace(/,/g, ''), 10);
+          }
+        }
+        return 0;
+      };
+
+      const displayName = document.querySelector('h1[data-e2e="user-title"], h2[data-e2e="user-subtitle"]')?.textContent?.trim() || '';
+      const bio = document.querySelector('h2[data-e2e="user-bio"], div[data-e2e="user-bio"]')?.textContent?.trim() || '';
+      const avatar = document.querySelector('img[data-e2e="user-avatar"]')?.getAttribute('src') || '';
+
+      return {
+        username: window.location.pathname.split('@')[1]?.replace('/', '') || '',
+        displayName,
+        avatar,
+        bio,
+        followers: getFollowerCount(),
+        following: getFollowingCount(),
+        likes: getLikesCount()
+      };
     });
 
-    // Wait for videos to load and scroll to load more
-    await page.waitForSelector('div[data-e2e="user-post-item"]', { timeout: 5000 }).catch(() => null);
-    
+    if (!profile.username) {
+      throw new Error('Failed to fetch profile data');
+    }
+
+    setCache(cacheKey, profile);
+    return profile;
+  } catch (error) {
+    console.error('Error scraping profile:', error);
+    throw new Error('Failed to fetch profile data');
+  } finally {
+    await browser.close();
+  }
+}
+
+export async function scrapeCreatorVideos(username: string): Promise<TikTokVideo[]> {
+  const cacheKey = `videos:${username}`;
+  const cached = getCached<TikTokVideo[]>(cacheKey);
+  if (cached) return cached;
+
+  const browser = await initBrowser();
+
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"macOS"'
+    });
+
+    // Add error handling for navigation
+    await Promise.race([
+      page.goto(`https://www.tiktok.com/@${username}`, {
+        waitUntil: 'networkidle0',
+        timeout: 60000
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Navigation timeout')), 60000)
+      )
+    ]);
+
+    // Wait for videos to load with increased timeout
+    await page.waitForSelector('div[data-e2e="user-post-item"]', { timeout: 10000 })
+      .catch(() => console.log('Could not find video elements'));
+
     // Scroll multiple times to load more videos
     for (let i = 0; i < 3; i++) {
       await page.evaluate(() => {
         window.scrollBy(0, window.innerHeight);
       });
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
     // Extract video data with more reliable selectors
@@ -178,18 +200,18 @@ export async function scrapeCreatorVideos(username: string): Promise<TikTokVideo
         return Math.round(num * multiplier);
       };
 
-      const videoElements = Array.from(document.querySelectorAll('div[data-e2e="user-post-item"]'));
+      const videoElements = Array.from(document.querySelectorAll('div[data-e2e="user-post-item"], div[data-e2e="user-post-item-list"] > div'));
       return videoElements.slice(0, 12).map(video => {
         // Find all img elements and get the one with the video thumbnail
         const images = Array.from(video.querySelectorAll('img'));
-        const thumbnail = images.find(img => img.src.includes('tiktok'))?.src || '';
+        const thumbnail = images.find(img => img.src?.includes('tiktok'))?.src || '';
         
         // Get video stats
         const statsText = video.querySelector('strong')?.textContent || '0';
         const views = parseNumber(statsText);
         
         // Get video description
-        const descElement = video.querySelector('div[class*="desc"]') || video.querySelector('div[data-e2e="user-post-item-desc"]');
+        const descElement = video.querySelector('div[class*="desc"], div[data-e2e="user-post-item-desc"]');
         const description = descElement?.textContent?.trim() || '';
         
         // Get video date if available
@@ -212,21 +234,16 @@ export async function scrapeCreatorVideos(username: string): Promise<TikTokVideo
       });
     });
 
-    if (videos.length > 0) {
-      setCache(cacheKey, videos);
-      return videos;
+    if (videos.length === 0) {
+      console.log('No videos found for user:', username);
+      return [];
     }
-    
-    throw new Error('No videos found');
+
+    setCache(cacheKey, videos);
+    return videos;
   } catch (error) {
     console.error('Error scraping videos:', error);
-    if (error instanceof Error) {
-      if (error.message.includes('net::ERR_TIMED_OUT')) {
-        throw new Error('Request timed out. TikTok might be blocking access.');
-      }
-      throw error;
-    }
-    throw new Error('Failed to fetch video data');
+    return []; // Return empty array instead of throwing
   } finally {
     await browser.close();
   }
