@@ -1,0 +1,67 @@
+import { Component, Property, Animation } from '@lynx/core';
+
+@Component({
+  tag: 'follower-counter',
+  template: `
+    <div class="counter">
+      {{ formattedValue }}
+    </div>
+  `,
+  styles: `
+    .counter {
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      transition: color 0.3s ease;
+    }
+
+    .counter.increasing {
+      color: #22c55e;
+    }
+
+    .counter.decreasing {
+      color: #ef4444;
+    }
+  `
+})
+export class FollowerCounter {
+  @Property() value: number = 0;
+  @Property() previousValue: number = 0;
+
+  private animation: Animation;
+
+  constructor() {
+    this.animation = new Animation({
+      duration: 1000,
+      easing: 'easeOutExpo',
+      onUpdate: (progress) => {
+        const current = this.previousValue + (this.value - this.previousValue) * progress;
+        this.updateDisplay(Math.round(current));
+      }
+    });
+  }
+
+  private updateDisplay(value: number) {
+    const el = this.querySelector('.counter');
+    if (el) {
+      el.textContent = this.formatNumber(value);
+      el.classList.remove('increasing', 'decreasing');
+      if (this.value > this.previousValue) {
+        el.classList.add('increasing');
+      } else if (this.value < this.previousValue) {
+        el.classList.add('decreasing');
+      }
+    }
+  }
+
+  private formatNumber(num: number): string {
+    return new Intl.NumberFormat().format(num);
+  }
+
+  onPropertyChange(name: string, oldValue: any, newValue: any) {
+    if (name === 'value' && oldValue !== newValue) {
+      this.previousValue = oldValue;
+      this.animation.start();
+    }
+  }
+} 
