@@ -1,12 +1,14 @@
 # TikTok Creator Live Card
 
-A real-time TikTok creator profile viewer built with Next.js and Puppeteer. This application allows you to view TikTok creator profiles with live-updating follower counts and profile information.
+A real-time TikTok creator profile viewer built with Next.js, Puppeteer, and Lynx animations. This application allows you to view TikTok creator profiles with live-updating follower counts and profile information, enhanced with native-like animations.
 
 ## Features
 
 - Real-time profile data scraping using Puppeteer
 - Beautiful, responsive UI with Tailwind CSS
-- Live follower count updates
+- Live follower count updates with Lynx animations
+- Native-like transitions and interactions
+- Smooth grid animations for content display
 - Profile information display (username, bio, avatar)
 - Error handling and loading states
 
@@ -17,6 +19,12 @@ A real-time TikTok creator profile viewer built with Next.js and Puppeteer. This
 - Tailwind CSS
 - Puppeteer for web scraping
 - React for UI components
+- Lynx Animation System:
+  - Custom animation hooks for follower counts
+  - Grid layout animations
+  - Native-like transitions
+  - Performance-optimized rendering
+  - Intersection Observer integration
 
 ## Getting Started
 
@@ -45,10 +53,30 @@ npm run dev
 │   ├── app/              # Next.js app router
 │   ├── components/       # React components
 │   ├── services/         # API and scraping services
+│   ├── lynx-components/  # Custom Lynx animations and hooks
 │   └── types/           # TypeScript type definitions
 ├── public/              # Static assets
 └── package.json         # Project dependencies
 ```
+
+## Lynx Integration
+
+The project showcases several Lynx animation features:
+
+1. **Follower Count Animations**
+   - Smooth number transitions
+   - Native-like easing functions
+   - Optimized performance
+
+2. **Grid Animations**
+   - Fluid content transitions
+   - Responsive layout animations
+   - Intersection-based loading
+
+3. **UI Interactions**
+   - Native-feeling feedback
+   - Smooth state transitions
+   - Gesture-based animations
 
 ## Contributing
 
