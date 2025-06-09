@@ -1,7 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['p16-sign-va.tiktokcdn.com', 'p16-sign-sg.tiktokcdn.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.tiktokcdn.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.tiktokcdn-us.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.tiktok.com',
+        pathname: '/**',
+      }
+    ],
   },
 }
 
