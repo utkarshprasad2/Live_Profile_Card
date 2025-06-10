@@ -62,10 +62,41 @@ npm run dev
 - Tailwind CSS
 - Puppeteer for data scraping
 
+## Project Structure
+```
+├── src/
+│   ├── app/              # Next.js app router
+│   ├── components/       # React components
+│   ├── services/         # API and scraping services
+│   ├── lynx-components/  # Custom Lynx animations and hooks
+│   └── types/           # TypeScript type definitions
+├── public/              # Static assets
+└── package.json         # Project dependencies
+```
+
+## Lynx Integration
+
+The project showcases several Lynx animation features:
+
+1. **Follower Count Animations**
+   - Smooth number transitions
+   - Native-like easing functions
+   - Optimized performance
+
+2. **Grid Animations**
+   - Fluid content transitions
+   - Responsive layout animations
+   - Intersection-based loading
+
+3. **UI Interactions**
+   - Native-feeling feedback
+   - Smooth state transitions
+   - Gesture-based animations
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
