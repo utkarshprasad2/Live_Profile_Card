@@ -1,11 +1,11 @@
 export interface TikTokCreator {
   username: string;
   displayName: string;
-  profileImage: string;
+  bio: string;
   followers: number;
   likes: number;
-  bio: string;
   isVerified: boolean;
+  profileImage: string;
 }
 
 export interface TikTokVideo {
@@ -23,8 +23,9 @@ export interface CreatorStats {
   videos: number;
 }
 
-export interface APIResponse<T> {
-  data: T;
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
   status: number;
   message: string;
 } 

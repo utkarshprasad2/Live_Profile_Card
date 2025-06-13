@@ -1,25 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    // Handle .lynx files
-    config.module.rules.push({
-      test: /\.lynx$/,
-      use: [
-        {
-          loader: '@lynx/webpack-loader',
-          options: {
-            isServer,
-          },
-        },
-      ],
-    });
-
-    return config;
-  },
-  // Enable experimental features for Lynx integration
-  experimental: {
-    appDir: true,
-    serverComponents: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.tiktokcdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.tiktokcdn-us.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p16-sign.tiktokcdn-us.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p19-sign.tiktokcdn-us.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p16-sign-va.tiktokcdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'p16-sign-sg.tiktokcdn.com',
+      },
+    ],
   },
 }
 

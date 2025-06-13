@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TikTok Profile Viewer
+
+A modern web application to view TikTok profiles, analyze performance metrics, and track engagement rates.
+
+## Features
+
+### Profile Information
+- Display user profile details including username, display name, and bio
+- Show follower count and total likes
+- Verified badge support
+- Responsive profile card design
+
+### Video Analytics
+- View recent videos with thumbnails and descriptions
+- Track video performance metrics:
+  - Total views and likes
+  - Average views per video
+  - Engagement rate calculation
+  - Top performing videos ranking
+- Interactive performance graph showing view distribution
+- Video grid with hover effects
+
+### Performance Metrics
+- Real-time analytics dashboard
+- Engagement rate calculation
+- Top performing content analysis
+- Visual data representation
+- Trend analysis with interactive graphs
+
+### Technical Features
+- Server-side caching for improved performance
+- Rate limiting to prevent abuse
+- Responsive design for all screen sizes
+- Dark mode support
+- Error handling and loading states
+- Automatic retries for failed requests
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/tiktok-profile-viewer.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## Technology Stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js 14
+- React
+- TypeScript
+- Tailwind CSS
+- Puppeteer for data scraping
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
+```
+├── src/
+│   ├── app/              # Next.js app router
+│   ├── components/       # React components
+│   ├── services/         # API and scraping services
+│   ├── lynx-components/  # Custom Lynx animations and hooks
+│   └── types/           # TypeScript type definitions
+├── public/              # Static assets
+└── package.json         # Project dependencies
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Lynx Integration
 
-## Deploy on Vercel
+The project showcases several Lynx animation features:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Follower Count Animations**
+   - Smooth number transitions
+   - Native-like easing functions
+   - Optimized performance
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Grid Animations**
+   - Fluid content transitions
+   - Responsive layout animations
+   - Intersection-based loading
+
+3. **UI Interactions**
+   - Native-feeling feedback
+   - Smooth state transitions
+   - Gesture-based animations
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
