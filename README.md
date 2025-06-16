@@ -1,102 +1,71 @@
-# TikTok Profile Viewer
+# TikTok Profile Card
 
-A modern web application to view TikTok profiles, analyze performance metrics, and track engagement rates.
+A modern web application to view TikTok profiles and analyze performance metrics.
 
-## Features
+## Environment Setup
 
-### Profile Information
-- Display user profile details including username, display name, and bio
-- Show follower count and total likes
-- Verified badge support
-- Responsive profile card design
+1. Create a `.env.local` file in the root directory
+2. Add the following environment variables:
 
-### Video Analytics
-- View recent videos with thumbnails and descriptions
-- Track video performance metrics:
-  - Total views and likes
-  - Average views per video
-  - Engagement rate calculation
-  - Top performing videos ranking
-- Interactive performance graph showing view distribution
-- Video grid with hover effects
-
-### Performance Metrics
-- Real-time analytics dashboard
-- Engagement rate calculation
-- Top performing content analysis
-- Visual data representation
-- Trend analysis with interactive graphs
-
-### Technical Features
-- Server-side caching for improved performance
-- Rate limiting to prevent abuse
-- Responsive design for all screen sizes
-- Dark mode support
-- Error handling and loading states
-- Automatic retries for failed requests
-
-## Getting Started
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/tiktok-profile-viewer.git
+# TikTok API Configuration
+NEXT_PUBLIC_TIKTOK_CLIENT_KEY=your_client_key_here
+TIKTOK_CLIENT_SECRET=your_client_secret_here
+TIKTOK_ACCESS_TOKEN=your_access_token_here
+
+# Optional - if using refresh tokens
+TIKTOK_REFRESH_TOKEN=your_refresh_token_here
 ```
 
-2. Install dependencies:
+## TikTok API Setup
+
+1. Go to [TikTok for Developers](https://developers.tiktok.com/)
+2. Create a new app or use an existing one
+3. Enable the following products:
+   - Login Kit
+   - Display API
+4. Request the following scopes:
+   - `user.info.basic`
+   - `video.list`
+5. Add your development URLs to the allowed domains
+6. Copy your Client Key and Client Secret to the `.env.local` file
+
+## Security Notes
+
+- Never commit the `.env.local` file to version control
+- The `.gitignore` file is configured to exclude sensitive files
+- Use environment variables in production deployment
+- Rotate your API keys regularly
+- Store the refresh token securely
+- Use HTTPS in production
+
+## Development
+
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+2. Run the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Technology Stack
+## API Documentation
 
-- Next.js 14
-- React
-- TypeScript
-- Tailwind CSS
-- Puppeteer for data scraping
+The application uses TikTok's Display API to fetch:
+- User profiles
+- Video lists
+- Video details
 
-## Project Structure
-```
-├── src/
-│   ├── app/              # Next.js app router
-│   ├── components/       # React components
-│   ├── services/         # API and scraping services
-│   ├── lynx-components/  # Custom Lynx animations and hooks
-│   └── types/           # TypeScript type definitions
-├── public/              # Static assets
-└── package.json         # Project dependencies
-```
+For more information, see the [TikTok Display API Documentation](https://developers.tiktok.com/doc/display-api-get-started/).
 
-## Lynx Integration
+## Features
 
-The project showcases several Lynx animation features:
-
-1. **Follower Count Animations**
-   - Smooth number transitions
-   - Native-like easing functions
-   - Optimized performance
-
-2. **Grid Animations**
-   - Fluid content transitions
-   - Responsive layout animations
-   - Intersection-based loading
-
-3. **UI Interactions**
-   - Native-feeling feedback
-   - Smooth state transitions
-   - Gesture-based animations
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- Display user profile information
+- Show recent TikTok videos
+- Analyze video performance
+- Responsive design
+- Secure API key handling
