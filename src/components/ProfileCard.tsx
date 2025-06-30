@@ -3,12 +3,13 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { TikTokCreator } from '@/types';
+import React from 'react';
 
 interface ProfileCardProps {
   profile: TikTokCreator;
 }
 
-export default function ProfileCard({ profile }: ProfileCardProps) {
+export default React.memo(function ProfileCard({ profile }: ProfileCardProps) {
   const [imageError, setImageError] = useState(false);
 
   const formatNumber = (num: number): string => {
@@ -75,4 +76,4 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       </div>
     </div>
   );
-} 
+}); 
