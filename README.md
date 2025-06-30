@@ -69,3 +69,18 @@ For more information, see the [TikTok Display API Documentation](https://develop
 - Analyze video performance
 - Responsive design
 - Secure API key handling
+
+## Accessibility
+
+- Toggle high contrast mode, reduced motion, and font size using the Accessibility Controls (bottom right corner)
+- Improved keyboard navigation and ARIA attributes for better accessibility
+
+## Performance
+
+- ProfileCard component is optimized with React.memo
+- Utility function `memoize` added for memoization
+
+## Utilities
+
+- ErrorHandler: Consistent error handling and logging
+- memoize: Simple memoization for performance
